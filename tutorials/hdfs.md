@@ -1,7 +1,5 @@
 # Working with HDFS
 
-**Work in progress**
-
 ## Installing Hadoop
 
 ### Download Hadoop
@@ -60,6 +58,12 @@ This is a good [guide](https://www.digitalocean.com/community/tutorials/how-to-i
 
 Once Java is installed, you need to set `JAVA_HOME` environment variable.
 
+Check if `JAVA_HOME` is set by:
+
+```
+  $ echo $JAVA_HOME
+```
+
 ### Configure HDFS
 
 We will be setting a sandbox single node in a pseudo-distributed mode where each Hadoop daemon runs in a separate Java process.
@@ -111,6 +115,8 @@ In order to format the HDFS file system, the `namenode` command needs to be used
 $ ./bin/hdfs namenode -format
 ``` 
 
+By default the HDFS filesystem will be set into your `/tmp` folder. This can be changed in the configuration file.
+
 **Start the Namenode**
 Once the HDFS file system is formatted, you can start the `NameNode` and `DataNode` deamon as follows:
 
@@ -131,6 +137,13 @@ $ ./bin/hdfs dfs -mkdir /user/<username>
 ```
 
 MapReduce jobs will use the user's HDFS directories.
+
+Wait few minutes and check the logs of the Data Node and Name Node under `HADOOP_HOME/logs/`:
+
+```
+  $ more ./logs/hadoop-<username>-namenode-<hostname>.log
+  $ more ./logs/hadoop-<username>-datanode-<hostname>.log
+```
 
 ### Using hdfs dfs command line
 
@@ -309,7 +322,3 @@ You can stop the `NameNode` and `DataNode` deamon as follows:
 ```
 $ ./sbin/stop-dfs.sh
 ```
-
-
-## Distributed Copy
-
