@@ -15,7 +15,7 @@ It is part of the parquet project repository on Github. You can install it and b
   cd parquet-mr
 
   # checkout latest version 1.10.0
-  git checkout tag/apache-parquet-1.10.0
+  git checkout tags/apache-parquet-1.10.0
 
   cd parquet-tools
   ## build the project
