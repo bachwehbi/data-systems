@@ -6,7 +6,15 @@ Spark. A dataframe represents a table of data with rows and columns. A dataframe
 always has a `schema` defining the column data types and some additional `metadata`
 like `nullable` indicating if the column accepts `nulls`.
 
+In this tutorial, we will use [Apache Zeppelin](https://zeppelin.apache.org/)
+notebook as our interactive development environment.
+
+You can follow the instructions in the [install](https://zeppelin.apache.org/docs/0.7.3/install/install.html)
+guide to install Zeppelin on your machine. Zeppelin comes with Spark binaries
+so there is no need to install Spark separately!
+
 ## Load the web logs
+
 The `Apache server log` is a text based format with custom structure (similar to
 tabular format). It can't be directly loaded into Apache Spark.
 We need to parse it line by line.
