@@ -125,7 +125,7 @@ and `user_id`. Check if these 2 columns are reported in the logs, and remove the
 # check distinct user and client ids
 ids = df.select('user_id', 'client_id').distinct().collect()
 
-ids.show()
+print ids
 # In Zeppelin
 z.show(ids)
 ```
