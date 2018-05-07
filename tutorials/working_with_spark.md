@@ -56,7 +56,7 @@ def log_parser(line):
     endpoint      = match.group(6), # The requested endpoint
     protocol      = match.group(7), # The protocol in use, usually HTTP/version
     response_code = int(match.group(8)), # one of HTTP's response codes (< 599).
-    content_size  = long(match.group(9)) # content size as reported in the HTTP
+    content_size  = int(match.group(9)) # content size as reported in the HTTP
   )
 ```
 
