@@ -54,7 +54,7 @@ rows within a window partition.
 ```
 from pyspark.sql import functions as F
 rankfct = F.rank().over(win)
-rankdf = wdf.select('*', rankTest.alias('rank'))
+rankdf = wdf.select('*', rankfct.alias('rank'))
 
 rankdf.show()
 # In Zeppelin

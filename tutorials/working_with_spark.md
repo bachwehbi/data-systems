@@ -64,7 +64,7 @@ Now load the Weblog data
 
 ```
 # path to weblog data
-logfile = 'REPLACE_WITH_PATH_TO_WEBLOG_DATA'
+logfile = 'REPLACE_WITH_PATH_TO_WEBLOG.LOG'
 
 df = sc.textFile(logfile) # reads the Weblog as a text file and returns it as RDD of lines
   .map(log_parser) # applies the log_parser function to every line in the RDD
@@ -152,9 +152,9 @@ Spark provides utility functions to work with dates and times. Let's create two 
 * `ts`: with `date_time` column converted into a timestamp (`DateType`)
 * `day`: with `date_time` column converted into `dd-MM-yyy` format.
 
-We will use the following function:
+We will use the following function (assuming Spark version >= v2.2):
 * `to_timestamp`: casts a String formatted date time into a `DateType` object
-  using an optionally provided format.
+  using an optionally provided format. This function is new in version 2.2.
 * `date_format`: converts a `DateType` into a String in the specified format.
 
 ```
@@ -162,6 +162,19 @@ from pyspark.sql import functions as F
 
 ndf = ndf.withColumn('ts', F.to_timestamp(ndf.date_time, 'dd/MMM/yyyy:HH:mm:ss Z'))
 ndf = ndf.withColumn('day', F.date_format(ndf.ts, 'dd-MM-yyyy'))
+
+ndf.show()
+# In Zeppelin
+z.show(ndf)
+```
+
+For Spark version 2.1 or earlier, we can use:
+
+```
+from pyspark.sql import functions as F
+
+ndf = ndf.withColumn('ts', F.unix_timestamp(ndf.date_time, 'dd/MMM/yyyy:HH:mm:ss Z'))
+ndf = ndf.withColumn('day', F.from_unixtime(ndf.ts, 'dd-MM-yyyy'))
 
 ndf.show()
 # In Zeppelin
