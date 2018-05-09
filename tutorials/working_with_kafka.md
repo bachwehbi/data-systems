@@ -63,8 +63,8 @@ listening on port number `2181`.
 
 ## Running Kafka
 
-The Kafka package comes with a ready to use configuration file. Let's review the
-main points in this file:
+The Kafka package comes with a ready to use configuration file `config/server.properties`.
+Let's review the main points in this file:
 
 ### Kafka Configuration Options
 
