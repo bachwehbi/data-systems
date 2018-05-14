@@ -607,3 +607,24 @@ failure, go back to the producer terminal and send a bunch of messages.
 See how all published messages have been delivered to the active consumers?
 
 Voilà :)
+
+## Publish Key:Value messages
+
+So far we have been working with messages without keys. It is possible to send
+`Key:Value` messages to a topic. This allows to group together messages belonging
+to the same key. On a partitioned topic, all messages with the same key will be
+sent by the producer to the same partition.
+
+Using the Kafka console producer, you can send keyed messages as follows:
+
+```
+./bin/kafka-console-producer.sh \
+  --broker-list localhost:9092 \
+  --property "parse.key=true" \
+  --property "key.separator=:"
+  --topic topicwithkey
+
+> key1:val1
+> key2:val2
+> key3:val3
+```
