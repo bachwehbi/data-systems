@@ -435,11 +435,6 @@ ndf.write \
 
 Avro format does not have a shorthand as it is the case for csv, parquet and orc.
 
-#df.coalesce(1).write.option("compression", "none").format('parquet').save('/FileStore/tables/weblog/log_data.parquet')
-#df.coalesce(1).write.option("compression", "none").format('orc').save('/FileStore/tables/weblog/log_data.orc')
-#spark.conf.set("spark.sql.avro.compression.codec", "uncompressed")
-#df.coalesce(1).write.option("compression", "none").format('com.databricks.spark.avro').save('/FileStore/tables/weblog/log_data3.avro')
-Writing data with Spark is
 
 ## Organizing Data on File System
 
