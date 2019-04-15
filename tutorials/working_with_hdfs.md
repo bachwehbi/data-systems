@@ -418,6 +418,7 @@ hdfs dfsadmin –safemode leave
 ```
 
 **Stop the Namenode**
+
 You can stop the `NameNode` and `DataNode` deamon as follows:
 
 ```
