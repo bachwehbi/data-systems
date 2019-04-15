@@ -4,7 +4,7 @@
 
 ### Download Hadoop
 
-Go to Hadoop [releases page](http://hadoop.apache.org/releases.html) and follow the instructions to download the latest version (v3.1.0).
+Go to Hadoop [releases page](http://hadoop.apache.org/releases.html) and follow the instructions to download the latest version (v3.1.2).
 
 ### Install Required Software
 
@@ -35,7 +35,7 @@ If you are prompted to provide a passphrase, then run the following:
 ```
 Now you should be able to connect to ssh without requiring any user interaction.
 
-If pdsh remote command (RCMD) type is not set to sst, you need to set it.
+If pdsh remote command (RCMD) type is not set to ssh, you need to set it.
 You can check the remote command type using:
 
 ```
@@ -48,13 +48,14 @@ If the result is `ssh`, then your system is properly configured, otherwise, run 
   $ export PDSH_RCMD_TYPE=ssh
 ```
 
-You can also permanently add export `PDSH_RCMD_TYPE` environment variable.
+You can also permanently add export `PDSH_RCMD_TYPE` environment variable. This can be done by editing
+`/etc/environment` file on ubuntu for instance.
 
 #### Install Java
 
 If Java is not installed on your machine. Go on and install it.
 
-This is a good [guide](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-get-on-ubuntu-16-04) for Ubuntu.
+This is a good [guide](https://www.digitalocean.com/community/tutorials/how-to-install-java-with-apt-on-ubuntu-18-04) for `Ubuntu 18.04`.
 
 Once Java is installed, you need to set `JAVA_HOME` environment variable.
 
@@ -103,7 +104,17 @@ In a single node, the HDFS replication factor must be set to 1. Open `./etc/hado
 </configuration>
 ```
 
-## Using HDFS
+**Hadoop Environment**
+
+You need to set some Hadoop environment variables before starting to use HDFS. Open `./etc/hadoop/hadoop-env.sh`,
+locate the line exporting `JAVA_HOME`, uncomment the line and update it to match your java home.
+
+This is also the placeholder for Hadoop home and logs folders. You can update them to customise the installation.
+In our case, we will use the default values. In particular, all Hadoop logs will be stored in `HADOOP_HOME/logs` folder. To override this value, uncomment and update the following line:
+
+```
+# export HADOOP_LOG_DIR=${HADOOP_HOME}/logs
+```
 
 ### Starting the Namenode
 
@@ -116,6 +127,22 @@ $ ./bin/hdfs namenode -format
 ``` 
 
 By default the HDFS filesystem will be set into your `/tmp` folder. This can be changed in the configuration file.
+This can be done by editing `./etc/hadoop/hdfs-site.xml` file and adding the following properties in the configuration:
+
+```
+    <property>
+        <name>dfs.name.dir</name>
+        <value>file://<name node metadata folder></value>
+    </property>
+
+    <property>
+        <name>dfs.data.dir</name>
+        <value>file://<data node data folder></value>
+    </property>
+
+```
+
+Please replace `<name node metadata folder>` and `<data node data folder>` with your folders of choice.
 
 **Start the Namenode**
 Once the HDFS file system is formatted, you can start the `NameNode` and `DataNode` deamon as follows:
@@ -145,14 +172,27 @@ Wait few minutes and check the logs of the Data Node and Name Node under `HADOOP
   $ more ./logs/hadoop-<username>-datanode-<hostname>.log
 ```
 
+## Using HDFS
+
 ### Using hdfs dfs command line
+
+**Add Hadoop bin to your PATH**
+It is more convenient to add Hadoop's bin to your PATH environment variable.
+
+```
+export PATH=PATH_TO_HADOOP_INSTALLATION_FOLDER/bin:$PATH
+```
+
+You can also add it parmanently to your profile.
+
+Now you can call `hdfs` directly.
 
 **Create an HDFS folder**
 
 To create a folder use:
 
 ```
-$ bin/hdfs dfs -mkdir myfolder
+$ hdfs dfs -mkdir myfolder
 ```
 
 This will create a fodler `myfolder` in your user's HDFS directory.
@@ -246,11 +286,11 @@ hdfs dfs -stat -R "%n, %u, %g, %x, %y, %a, %b, %o, %r" /user/<username>/myfolder
 
 This command prints a set of statistics in a comma seperated value format as in:
 ```
-myfolder, bachwehbi, supergroup, 1970-01-01 00:00:00, 2018-04-24 21:43:59, 755, 0, 0, 0
-LICENSE.txt, bachwehbi, supergroup, 2018-04-24 21:43:57, 2018-04-24 21:43:58, 644, 147145, 134217728, 1
-NOTICE.txt, bachwehbi, supergroup, 2018-04-24 21:43:58, 2018-04-24 21:43:59, 644, 21867, 134217728, 1
-README.txt, bachwehbi, supergroup, 2018-04-24 21:43:59, 2018-04-24 21:43:59, 644, 1366, 134217728, 1
-test.txt, bachwehbi, supergroup, 2018-04-24 21:43:59, 2018-04-24 21:43:59, 644, 0, 134217728, 1
+myfolder, ubuntu, supergroup, 1970-01-01 00:00:00, 2018-04-24 21:43:59, 755, 0, 0, 0
+LICENSE.txt, ubuntu, supergroup, 2018-04-24 21:43:57, 2018-04-24 21:43:58, 644, 147145, 134217728, 1
+NOTICE.txt, ubuntu, supergroup, 2018-04-24 21:43:58, 2018-04-24 21:43:59, 644, 21867, 134217728, 1
+README.txt, ubuntu, supergroup, 2018-04-24 21:43:59, 2018-04-24 21:43:59, 644, 1366, 134217728, 1
+test.txt, ubuntu, supergroup, 2018-04-24 21:43:59, 2018-04-24 21:43:59, 644, 0, 134217728, 1
 ```
 
 **Copy files from HDFS**
@@ -314,6 +354,67 @@ You can also use `rmdir` command to remove an empty directory  from HDFS.
 
 ```
 $ hdfs dfs -rmdir -r `newfolder/`
+```
+
+**Check HDFS disk usage**
+
+You can check HDFS filesystem disk space usage with:
+
+```
+hdfs dfs -df
+```
+
+**Check HDFS health**
+
+HDFS is an essential component in a Hadoop Big data cluster, ensuring its health is critical.
+You can check for HDFS file system health with:
+
+```
+hdfs fsck /
+```
+
+You can print HDFS block report with:
+
+```
+hdfs fsck / -files -blocks
+```
+
+You can list corrupt blocks with:
+
+```
+hdfs fsck -list-corruptfileblocks
+```
+
+**HDFS `safemode`**
+
+HDFS `safemode` is a maintenance state of the `NameNode`, during which it doesn’t allow any modifications to HDFS file system. In this state, HDFS is in `read-only` mode and does not replicate or delete Data Blocks.
+
+The name node anters in safe mode temporarily at startup. The cluster is also configured to enable automatic safe
+mode when:
+
+* the name node is full 
+* the percentage of blocks with minimal replication requirement is less than the configured threshold (0.999 by default).
+* the number of alive data nodes is less than the configured threshold
+
+To check the status of safe mode:
+
+```
+hdfs dfsadmin –safemode get
+```
+
+To enter in safe mode:
+
+```
+hdfs dfsadmin –safemode enter
+```
+
+While in safe mode, try to write to HDFS by creating a folder, adding a file or deleting a file and see how
+your request will be rejected.
+
+To leave safe mode:
+
+```
+hdfs dfsadmin –safemode leave
 ```
 
 **Stop the Namenode**
