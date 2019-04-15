@@ -145,6 +145,7 @@ This can be done by editing `./etc/hadoop/hdfs-site.xml` file and adding the fol
 Please replace `<name node metadata folder>` and `<data node data folder>` with your folders of choice.
 
 **Start the Namenode**
+
 Once the HDFS file system is formatted, you can start the `NameNode` and `DataNode` deamon as follows:
 
 ```
@@ -177,6 +178,7 @@ Wait few minutes and check the logs of the Data Node and Name Node under `HADOOP
 ### Using hdfs dfs command line
 
 **Add Hadoop bin to your PATH**
+
 It is more convenient to add Hadoop's bin to your PATH environment variable.
 
 ```
