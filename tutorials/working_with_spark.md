@@ -1,3 +1,80 @@
+# Install and Prepare Apache Spark
+
+## Install Spark
+
+You can install Apache Spark from this [link](https://spark.apache.org/downloads.html).
+We will download the latest stable version v2.4.1 pre-built for Apache Hadoop 2.7 or later from
+this [link](https://www.apache.org/dyn/closer.lua/spark/spark-2.4.1/spark-2.4.1-bin-hadoop2.7.tgz).
+
+
+```
+tar -xzvf spark-2.4.1-bin-hadoop2.7.tgz
+cd spark-2.4.1-bin-hadoop2.7
+
+export SPARK_HOME='<SPARK_INSTALLATION_FOLDER>/spark-2.4.1-bin-hadoop2.7'
+export PATH=$SPARK_HOME/bin:$PATH
+```
+
+You can now run interactive `spark-shell` or `pyspark` sessions.
+
+You can add `SPARK_HOME` and `PATH` parmanently to your profile (`~/.bashrc`) on ubuntu.
+
+## Start SparkUI
+
+Spark History server provides a web user interface to inspect and analyse completed and running Spark Jobs.
+
+Before running the Spark History server, we must ensure that Spark Jobs are configured to write their event logs.
+
+```
+cd $SPARK_HOME
+cp conf/spark-defaults.conf.template conf/spark-defaults.conf
+vi conf/spark-defaults.conf
+```
+
+In `spark-defaults.conf` configuration file, uncomment:
+
+```
+spark.eventLog.enabled           true
+
+```
+
+By default, Spark events are logged to `/tmp/spark-events`, you can override this by setting `spark.eventLog.dir`
+to a local folder (fine for standalone deployment) or to an HDFS folder.
+
+Now start the Spark History server with:
+
+```
+$SPARK_HOME/sbin/start-history-server.sh
+```
+
+Open your browser and goto `localhost:18080`.
+
+## Install and prepare Jupyter
+
+In this tutorial, we will use [Jupyter](https://jupyter.org/) notebook as our
+interactive development environment.
+
+You can follow the instructions in the [install](https://jupyter.org/install.html)
+guide to install Jupyter on your machine.
+
+In order to get `pyspark` to work in Jupyter notebook, we need to set some environment varibales:
+
+```
+export PYSPARK_DRIVER_PYTHON="jupyter"
+export PYSPARK_DRIVER_PYTHON_OPTS="notebook"
+```
+
+You can add these environment variables permanently to your profile.
+
+Now running `pyspark` will start jupyter.
+
+```
+pyspark
+```
+
+You can check this [article](https://blog.sicara.com/get-started-pyspark-jupyter-guide-tutorial-ae2fe84f594f) for more details.
+
+
 # Working with Apache Spark
 
 In this tutorial, we will use Apache Spark for `WebLog` analysis.
@@ -5,13 +82,6 @@ We will be using the `dataframe` API as it is the most common Structured API in
 Spark. A dataframe represents a table of data with rows and columns. A dataframe
 always has a `schema` defining the column data types and some additional `metadata`
 like `nullable` indicating if the column accepts `nulls`.
-
-In this tutorial, we will use [Apache Zeppelin](https://zeppelin.apache.org/)
-notebook as our interactive development environment.
-
-You can follow the instructions in the [install](https://zeppelin.apache.org/docs/0.7.3/install/install.html)
-guide to install Zeppelin on your machine. Zeppelin comes with Spark binaries
-so there is no need to install Spark separately!
 
 ## Load the web logs
 

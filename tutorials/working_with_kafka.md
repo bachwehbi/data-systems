@@ -4,15 +4,12 @@ The objective of this tutorial is to get started using Apache Kafka.
 
 ## Install Kafka
 
-Create a new folder `dev` in your home directory, then download latest version
-(v-1.1.0 as of the time of writing this tutorial) of Apache Kafka.
+You can download th latest version (v-2.2.0 as of the time of writing this tutorial) of Apache Kafka from
+there [download page](https://www.apache.org/dyn/closer.cgi?path=/kafka/2.2.0/kafka_2.12-2.2.0.tgz).
 
 ```
-mkdir dev
-cd dev
-wget http://mirror.ibcp.fr/pub/apache/kafka/1.1.0/kafka_2.11-1.1.0.tgz
-tar -xzvf kafka_2.11-1.1.0.tgz
-mv kafka_2.11-1.1.0 kafka
+tar -xzvf kafka_2.12-2.2.0.tgz
+mv kafka_2.12-2.2.0 kafka
 ```
 
 ## Run Zookeeper
@@ -136,11 +133,11 @@ You should get the following output log. A Kafka instance is up and running!
 
 ```
 ...
-[2018-03-30 13:07:19,734] INFO Registered broker 0 at path /brokers/ids/0 with addresses: EndPoint(bachwehbi-VirtualBox,9092,ListenerName(PLAINTEXT),PLAINTEXT) (kafka.utils.ZkUtils)
-[2018-03-30 13:07:19,736] WARN No meta.properties file under dir /tmp/kafka-logs/meta.properties (kafka.server.BrokerMetadataCheckpoint)
-[2018-03-30 13:07:19,808] INFO Kafka version : 1.1.0 (org.apache.kafka.common.utils.AppInfoParser)
-[2018-03-30 13:07:19,822] INFO Kafka commitId : c0518aa65f25317e (org.apache.kafka.common.utils.AppInfoParser)
-[2018-03-30 13:07:19,830] INFO [KafkaServer id=0] started (kafka.server.KafkaServer)
+[2019-03-30 13:07:19,734] INFO Registered broker 0 at path /brokers/ids/0 with addresses: EndPoint(bachwehbi-VirtualBox,9092,ListenerName(PLAINTEXT),PLAINTEXT) (kafka.utils.ZkUtils)
+[2019-03-30 13:07:19,736] WARN No meta.properties file under dir /tmp/kafka-logs/meta.properties (kafka.server.BrokerMetadataCheckpoint)
+[2019-03-30 13:07:19,808] INFO Kafka version : 2.2.0 (org.apache.kafka.common.utils.AppInfoParser)
+[2019-03-30 13:07:19,822] INFO Kafka commitId : c0518aa65f25317e (org.apache.kafka.common.utils.AppInfoParser)
+[2019-03-30 13:07:19,830] INFO [KafkaServer id=0] started (kafka.server.KafkaServer)
 ```
 
 ## Working with topics
