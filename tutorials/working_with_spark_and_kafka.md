@@ -1,3 +1,4 @@
+
 # Working with Spark and Kafka
 
 ## Spark Streaming with Kafka
@@ -12,51 +13,26 @@ It can be a few seconds for latency sensitive applications.
 
 In this section, we will work with Spark streaming with Kafka.
 
+
+
 ### Install Kafka Connector
 
-Spark does not come shipped with a Kafka connector. This dependency should be
-manually added.
+Spark does not come shipped with a Kafka connector. This dependency should be manually added.
 
-Spark streaming and Kafka integration guide can be found [here](https://spark.apache.org/docs/2.1.0/streaming-kafka-integration.html).
+Spark streaming and Kafka integration guide can be found [here](https://spark.apache.org/docs/2.4.1/streaming-kafka-integration.html).
 As you can see, there are two libraries with different maturity. We will be using
-[spark-streaming-kafka-0-8](https://spark.apache.org/docs/2.1.0/streaming-kafka-0-8-integration.html)
-in this tutorial.
+[spark-streaming-kafka-0-8](https://spark.apache.org/docs/2.4.1/streaming-kafka-0-8-integration.html)
+in this tutorial as it is the one supporting Python.
 
-There are different ways to install the Kafka connector for Spark:
+The Kafka connector `spark-streaming-kafka-0-8_2.11` and its dependencies can be directly added to `pyspark` (or `spark-submit`) using `--packages`.
 
-**Manual Download**
-Just go to [Maven Central](https://mvnrepository.com/artifact/org.apache.spark/spark-streaming-kafka-0-8-assembly_2.11/2.3.0)
-locate the corresponding [jar](http://central.maven.org/maven2/org/apache/spark/spark-streaming-kafka-0-8-assembly_2.11/2.3.0/) then:
+Run the following:
 
 ```
-wget http://central.maven.org/maven2/org/apache/spark/spark-streaming-kafka-0-8-assembly_2.11/2.3.0/spark-streaming-kafka-0-8-assembly_2.11-2.3.0.jar
+pyspark --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.1
 ```
 
-This is the only `jar` file you'll need to work with Kafka in Spark. Move the
-file to the Spark dependency folder and you're ready to go. If you are using
-Zeppelin with Spark integrated, run the following:
-
-```
-cd zeppelin # or whatever you named your folder
-cp spark-streaming-kafka-0-8-assembly_2.11-2.3.0.jar ./interpreter/spark/dep
-```
-
-**Spark Dependency Interpreter in Zeppelin**
-
-You can load the Kafka dependency right from the Spark dependency interpreter in
-Zeppelin.
-
-In order to load a new dependency with the Spark dependency interpreter, you need
-first to `restart` the Spark interpreter. Then, in any notebook, create a
-paragraph at the top of the notebook and run the following:
-
-```
-%spark.dep
-
-z.load("org.apache.spark:spark-streaming-kafka-0-8-assembly_2.11:2.3.0")
-```
-
-Now you have Kafka connector ready.
+Now you have Kafka connector ready in your pyspark interactive session in Jupyter.
 
 ### Working with Kafka
 
@@ -68,7 +44,10 @@ let's name it `mytopic`, and start a producer console. You can refer to
 
 You can start the Spark streaming context as follows:
 
-```
+
+
+
+```python
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 
@@ -80,14 +59,16 @@ all messages arriving in a 5 seconds window, will be processed together.
 
 **Connect to Kafka topic**
 
-```
+
+```python
 from pyspark.streaming.kafka import KafkaUtils
 
 zk = 'localhost:2181' ## Zookeeper
 mytopic = 'mytopic' ## topic name
 
-## create a kafka stream documentation at: https://spark.apache.org/docs/2.1.0/api/python/pyspark.streaming.html#pyspark.streaming.kafka.KafkaUtils
+## create a kafka stream documentation at: https://spark.apache.org/docs/2.4.1/api/python/pyspark.streaming.html#pyspark.streaming.kafka.KafkaUtils
 kafka_dstream = KafkaUtils.createStream(ssc, zk, 'sparkit', {mytopic: 1})
+
 ```
 
 **Register an output operation**
@@ -97,53 +78,65 @@ window period. This is basically the computation flow we want to make on arrivin
 data. For the moment, let's simply register an operation that will simply write
 arriving messages to a text file:
 
-```
+
+
+```python
 kafka_dstream.saveAsTextFiles(prefix='PATH_TO_FOLDER/some_prefix', suffix='log')
+
 ```
 
 **Start the streaming context**
 
 Now that the output operation is registered, you can start the streaming context:
 
-```
+
+
+```python
 ssc.start()
+
 ```
 
 Now go to your Kafka producer console and send few messages for about 15 seconds.
+
 
 **Stop the streaming context**
 
 Now let's stop the streaming context and check what has been done:
 
-```
+
+
+```python
 ## stop the streaming context by keep the Spark context
 ssc.stop(stopSparkContext=False, stopGraceFully=True)
+
 ```
 
 Now check the destination folder where data has been written to and check the content.
-You will see some folders (one per window period) containing text files with
+You will see some files (one per window period) containing text files with
 content similar to this:
 
 ```
-g-1526239245000.log/part-00000
-::::::::::::::
-(None, u'message1')
-(None, u'message2')
-...
-```
-
-These are the contents of the messages received by the Kafka connector. These are
-`key:value` pairs with `key` set to null as we are not sending keyed messages.
-
-In order to send keyed messages, check the Kafka tutorial last section. Repeat
-the procedure and see how you will be getting something like:
-
-```
-g-1526239645000.log/part-00000
-::::::::::::::
 (u'key1', u'message1')
 (u'key2', u'message2')
-...
+```
+
+Now read the data into Spark dataframe (you will need to parse the content first):
+
+
+```python
+from pyspark.sql import Row
+from ast import literal_eval
+
+def make_tuple(line):
+    tp = literal_eval(line)
+    return Row(
+        key = str(tp[0]),
+        value = tp[1]
+    )
+
+df = sc.textFile('PATH_TO_FOLDER/some_prefix*').map(make_tuple).toDF()
+
+df.show()
 ```
 
 **Word Count**
@@ -151,9 +144,10 @@ g-1526239645000.log/part-00000
 Now let's add some processing to received messages. We will implement a `word count`.
 Change your code as follows:
 
-```
-kafka_dstream = KafkaUtils.createStream(ssc, zk, 'sparkit', {mytopic: 1})
 
+
+
+```python
 ## get only the value part of message. Remember messages are key:value pairs
 values = kafka_dstream.map(lambda x: x[1])
 
@@ -166,15 +160,79 @@ counts.saveAsTextFiles(prefix='PATH_TO_FOLDER/some_prefix', suffix='log')
 Go over the whole process and see how you will be getting word counts now:
 
 ```
-f-1526232420000.log/part-00000
-::::::::::::::
-(u'messge', 1)
-(u'message', 2)
+(u'message1', 1)
+(u'message2', 2)
 (u'abc', 1)
-...
 ```
 
-**Web log analysis**
+Now adapt the Spark text file reader to show the word count results.
 
-Now combine the Weblog line parser at the beginning of this tutorial to calculate
-the `method` and `endpoint` requests count.
+### Submitting the Spark Streaming job with spark-submit
+
+So far, we have worked with Jupyter interactive notebooks. Next, we will launch the Spark Streaming job with `spark-submit`.
+
+You need to create a Python file containing the pyspark code to connect to Kafka topic and store word count.
+
+The script will be something similar to:
+
+```python
+#!/usr/bin/env python
+# coding: utf-8
+
+from pyspark import SparkContext
+from pyspark.streaming import StreamingContext
+from pyspark.streaming.kafka import KafkaUtils
+
+zk = 'localhost:2181' ## Zookeeper
+mytopic = 'mytopic' ## topic name
+
+# create Spark Context
+sc = SparkContext(appName="kafkastream")
+
+# create Spark Streaming Context
+ssc = StreamingContext(sc, 5)
+
+kafka_dstream = KafkaUtils.createStream(ssc, zk, 'sparkit', {mytopic: 1})
+
+values = kafka_dstream.map(lambda x: x[1])
+
+counts = values.flatMap(lambda value: value.split(' ')).map(lambda word: (word, 1)).reduceByKey(lambda a, b: a + b)
+
+counts.saveAsTextFiles(prefix='PATH_TO_FOLDER/count', suffix='log')
+
+ssc.start()
+
+#wait for the execution to stop. For example, on user termination.
+ssc.awaitTermination()
+
+ssc.stop(stopGraceFully=True)
+
+```
+
+There are two differences with what we used to do in the notebook:
+
+* Creating the Spark Context: this was automatically done in the notebook when running pyspark.
+  We need to explicitly start the Spark Context otherwise.
+
+  ```python
+  # create Spark Context
+  sc = SparkContext(appName="kafkastream")
+  ```
+
+* Instruct the Spark Streaming Context to wait the execution to stop. Otherwise, Spark will exit directly.
+
+  ```python
+  ssc.awaitTermination()
+  ```
+
+To submit the job:
+
+```
+# instruct pyspark to use python
+export PYSPARK_DRIVER_PYTHON="python3"
+export PYSPARK_DRIVER_PYTHON_OPTS=""
+
+spark-submit --master local[2] --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.1 PATH_TO_SCRIPT.py
+```
+
+This tells Spark to run the python script in standalone (`local`) mode and using two threads for the execution. Spark Streaming requires a minimum of two threads to operate.
