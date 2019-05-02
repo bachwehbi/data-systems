@@ -62,14 +62,11 @@ Next install the MongoDB by using the following command:
 sudo apt-get install -y mongodb-org
 ```
 
-In the above installation, 3.6.4 is currently released MongoDB version.
-Make sure to install the latest version always.
-
 #### Start MongoDB
 
 To start the `mongod` service, run the following command:
 ```
-sudo service mongod start
+sudo systemctl start mongod.service
 ```
 
 To use MongoDB client console run the following command:
@@ -85,7 +82,7 @@ This will connect you to running MongoDB instance.
 Use the following command in order to stop mongodb:
 
 ```
-sudo service mongod stop
+sudo systemctl stop mongod.service
 ```
 
 #### Restart MongoDB
@@ -93,7 +90,7 @@ sudo service mongod stop
 Use the following command in order to restart mongodb:
 
 ```
-sudo service mongod restart
+sudo systemctl start mongod.service
 ```
 ## Create database
 
@@ -167,15 +164,15 @@ Use the following command to insert a document in the logs collection
 ```
 db.logs.insert(
 {
-	Ip_address: "::ffff:54.221.205.80",
-	Client_id:"client1",
-	User_id:"user1",
-	Date_time:new Date("2018-03-1T23:07:43"),
-	Method:"POST",
-	Endpoint:"/v1/data/publish/ISS/position",
-	Protocol:"HTTP/1.1",
-   Response_code: 200,
-   Content_size:4
+    ip_address: "::ffff:54.221.205.80",
+    client_id: "client1",
+    user_id: "user1",
+    date_time: "2018-03-1T23:07:43",
+    method: "POST",
+    endpoint: "/v1/data/publish/ISS/position",
+    protocol: "HTTP/1.1",
+    response_code: 200,
+    content_size: 4
 })
 ```
 
@@ -186,26 +183,26 @@ Use the following command in order to insert 2 documents to the logs collection:
 ```
 db.logs.insert([
 {
-	Ip_address:"::ffff:54.243.49.1",
-	Client_id:"client1",
-	User_id:"user1",
-	Date_time:new Date("2018-05-3T11:08:11"),
-	Method:"POST",
-	Endpoint: "/v1/data/write/klima/Temperature",
-	Protocol:"HTTP/1.1",
-	Response_code: 200,
-	Content_size:4
+    ip_address: "::ffff:54.243.49.1",
+    client_id: "client1",
+    user_id: "user1",
+    date_time: "2018-05-3T11:08:11",
+    method: "POST",
+    endpoint: "/v1/data/write/klima/Temperature",
+    protocol: "HTTP/1.1",
+    response_code: 200,
+    content_size: 4
 },
 {
-	Ip_address:"::ffff:54.221.205.80",
-	Client_id:"client2",
-	User_id:"user2",
-	Date_time:new Date("2018-03-2T11:00:21"),
-	Method:"GET",
-	Endpoint: "/v1/data/read/appliance/command?limit=1&source=raw",
-	Protocol:"HTTP/1.1",
-	Response_code: 404,
-	Content_size:5
+    ip_address: "::ffff:54.221.205.80",
+    client_id: "client2",
+    user_id: "user2",
+    date_time: "2018-03-2T11:00:21",
+    method: "GET",
+    endpoint: "/v1/data/read/appliance/command?limit=1&source=raw",
+    protocol: "HTTP/1.1",
+    response_code: 404,
+    content_size: 5
 }]
 )
 ```
@@ -224,7 +221,7 @@ MongoDB created for every inserted document.
 Now use the following command to get all documents with response code 200:
 
 ```
-db.logs.find({"Response_code":200}).pretty()
+db.logs.find({"response_code": 200}).pretty()
 ```
 
 Use the following command to get all the documents where response code = 200 and Client_id = client1:
@@ -233,7 +230,7 @@ Use the following command to get all the documents where response code = 200 and
 db.logs.find(
    {
       $and: [
-         {Response_code : 200}, {Client_id: "client1"}
+         {response_code : 200}, {client_id: "client1"}
       ]
    }
 ).pretty()
@@ -242,12 +239,12 @@ db.logs.find(
 To query the document on the basis of some condition, you can use following operations:
 
 ```
-Equality: 		        {<key>:<value>}
-Less Than: 		        {<key>:{$lt:<value>}}
-Less Than Equals: 	  {<key>:{$lte:<value>}}
-Greater : 		        {<key>:{$gt:<value>}}
-Greater Than Equals: 	{<key>:{$gte:<value>}}
-Not Equals: 		      {<key>:{$ne:<value>}}
+Equality:            {<key>:<value>}
+Less Than:           {<key>:{$lt:<value>}}
+Less Than Equals:    {<key>:{$lte:<value>}}
+Greater:             {<key>:{$gt:<value>}}
+Greater Than Equals: {<key>:{$gte:<value>}}
+Not Equals:          {<key>:{$ne:<value>}}
 ```
 
 Use these conditions to create different filters on the data.
@@ -255,7 +252,7 @@ Use these conditions to create different filters on the data.
 Now, use the following command to get the top document having the biggest content size:
 
 ```
-db.logs.find().sort({"Content_size":-1}).limit(1).pretty()
+db.logs.find().sort({"content_size":-1}).limit(1).pretty()
 ```
 
 Please note that, if you don't specify the sorting preference, then sort()
@@ -264,22 +261,145 @@ method will display the documents in `ascending` order.
 The following command retrieves the logs where method equals either GET or POST
 
 ```
-db.logs.find({Method: {$in: ["GET", "POST"]}}).pretty()
+db.logs.find({method: {$in: ["GET", "POST"]}}).pretty()
 ```
 
 The following command retrieves the logs where method equals GET and Content_size is greater than or equal 4
 
 ```
-db.logs.find({Method:"GET", Content_size: {$gte:4}}).pretty()
+db.logs.find({method: "GET", content_size: {$gte:4}}).pretty()
 ```
 
-The following command retrieves the logs where Method equals "POST" and either Content_size = 4 or Client_id starts with "Client"
+The following command retrieves the logs where method equals "POST" and either content_size = 4 or client_id starts with "Client"
 
 ```
 db.logs.find( {
-     Method: "GET",
-     $or: [ { Content_size: 4 }, { Client_id: /^client/ } ]
+     method: "GET",
+     $or: [ { content_size: 4 }, { client_id: /^client/ } ]
 }).pretty()
+```
+
+### Work with MongoDB programmatically
+
+We will use [pymongo](http://api.mongodb.com/python/current/tutorial.html) to connect and work with MongoDB from Python.
+
+**Install MongoDB client for Python**
+
+```
+conda install pymongo
+
+# or using pip
+
+pip install pymongo
+```
+
+**Initialize client**
+
+```python
+from pymongo import MongoClient
+
+# initialize and connect client
+client = MongoClient('mongodb://localhost:27017/')
+
+connect to database
+db = client.Logging
+
+connect to collection
+logs = db.logs
+```
+
+**List collections**
+
+```python
+db.list_collection_names()
+```
+
+**Insert a record in the collection**
+
+```python
+record = {
+    "ip_address": "::ffff:54.221.205.80",
+    "client_id": "client123",
+    "user_id": "user1",
+    "date_time": "2018-03-1T23:07:43",
+    "method": "POST",
+    "endpoint": "/v1/data/publish/ISS/position",
+    "protocol": "HTTP/1.1",
+    "response_code": 200,
+    "content_size": 4
+}
+
+inserted_record = logs.insert_one(record)
+
+print(inserted_record.inserted_id)
+```
+
+**Find one record**
+
+```python
+print(logs.find_one())
+
+# or with a filter
+print(logs.find_one({"client_id": "client123"}))
+```
+**Inserted records from log file**
+
+```python
+import re # regular expression
+
+# regular expression to parse an Apache Server log line
+# It is constructed as follows
+# IP_Address client_id user_id date_time method endpoint protocol response_code content_size
+LOG_PATTERN = '^(\S+) (\S+) (\S+) \[([\w:/]+\s[+\-]\d{4})\] "(\S+) (\S+) (\S+)" (\d{3}) (\d+)'
+
+
+def log_parser(line):
+  # Now match the given input line with the regular expression
+  match = re.search(LOG_PATTERN, line)
+
+  # If there is no match, then the input line is invalid: report an error
+  if match is None:
+    raise Error("Invalid input line: %s" % line)
+
+  # return a pyspark.sql.Row
+  return {
+    "ip_address"    : match.group(1), # IP address of the client (IPv4 or IPv6)
+    "client_id"     : match.group(2), # Clientid: mostly '-'. This info should never be used as it is unreliable.
+    "user_id"       : match.group(3), # The userid as defined in HTTP authentication
+                                    # If the endpoint is not password protected, it will be '-'
+    "date_time"     : match.group(4), # The time the server finished processing the request
+                                    # date_time format: day/month/year:hour:minute:second zone
+    "method"        : match.group(5), # The HTTP method
+    "endpoint"      : match.group(6), # The requested endpoint
+    "protocol"      : match.group(7), # The protocol in use, usually HTTP/version
+    "response_code" : int(match.group(8)), # one of HTTP's response codes (< 599).
+    "content_size"  : int(match.group(9)) # content size as reported in the HTTP
+  }
+
+```
+
+Now open the log file and insert a record for every line:
+
+```python
+logfile = '/home/ubuntu/Desktop/dev/datafiles/weblog.log'
+
+with open(logfile) as lf:
+    for line in lf:
+        rec = log_parser(line)
+        _ = logs.insert_one(rec)
+```
+
+This operation might take a couple of minutes.
+
+Adapt the code in order to use the more efficient bulk insert method: `insert_many`
+
+**Count records in collection**
+
+```python
+print(logs.count_documents({}))
+
+# you can add a filter
+print(logs.count_documents({method: "POST"}))
 ```
 
 ## Indexing
@@ -305,28 +425,28 @@ In the following exercise, we will learn how to create a Single Field Index and 
 Let’s run the following query:
 
 ```
-db.logs.find({"Response_code": 404}).explain("executionStats")
+db.logs.find({"response_code": 404}).explain("executionStats")
 ```
 Note that `totalDocsExamined` value is equal to the number of all the documents
 in the collection. This means that MongoDB scanned all the documents in order to
 return the result. This is shown in `"stage" : "COLLSCAN"` which means collection
 scan.
 
-Let’s add an index on `Response_code`
+Let’s add an index on `response_code`
 
 ```
-db.logs.createIndex({"Response_code":1})
+db.logs.createIndex({"response_code":1})
 ```
 
 To create index in descending order you need to use -1:
 ```
-db.logs.createIndex({"Response_code":-1})
+db.logs.createIndex({"response_code":-1})
 ```
 
 Now let’s run the same query again
 
 ```
-db.logs.find({"Response_code": 404}).explain("executionStats")
+db.logs.find({"response_code": 404}).explain("executionStats")
 ```
 After Index, MongoDB will not do a complete collection scan, the `totalDocsExamined`
 will show now the number of the logs where Response_code is 404 instead of the total
@@ -343,7 +463,7 @@ In that case we will have to apply index on Client_id and Method, this is called
 Compound Index:
 
 ```
-db.logs.createIndex({"Client_id":1, "Method": 1})
+db.logs.createIndex({"client_id":1, "method": 1})
 ```
 
 You can use `stats()` function to get interesting statistics about databases and collections:
@@ -365,25 +485,25 @@ perform a variety of operations on the grouped data to return a single result.
 Use the following command to get the count of logs and total content size of each IP address:
 
 ```
-db.logs.aggregate([{$group : {_id : "$Ip_address", count: {$sum : 1}, total_size: {$sum : "$Content_size"}}}])
+db.logs.aggregate([{$group : {_id : "$ip_address", count: {$sum : 1}, total_size: {$sum : "$content_size"}}}])
 ```
 
 Use the following command to get the count of logs for each endpoint:
 
 ```
-db.logs.aggregate([{$group : {_id : "$Endpoint", count: {$sum : 1}}}])
+db.logs.aggregate([{$group : {_id : "$endpoint", count: {$sum : 1}}}])
 ```
 
 Use the following command to get the count and maximum content size of each method:
 
 ```
-db.logs.aggregate([{$group : {_id : "$Method", count: {$sum : 1}, max_size: {$max : "$Content_size"}}}])
+db.logs.aggregate([{$group : {_id : "$method", count: {$sum : 1}, max_size: {$max : "$content_size"}}}])
 ```
 
 Use the following command to get the count of each response code
 
 ```
-db.logs.aggregate([{$group : {_id : "$Response_code", count: {$sum : 1}}}])
+db.logs.aggregate([{$group : {_id : "$response_code", count: {$sum : 1}}}])
 ```
 
 ## Replication
@@ -453,15 +573,15 @@ use Logging
 
 db.logs.insert(
 {
-	Ip_address: "::ffff:54.221.200.10",
-	Client_id:"client5",
-	User_id:"user5",
-	Date_time:new Date("2018-03-03T11:00:00"),
-	Method:"GET",
-	Endpoint: "/v1/data/read/temp",
-	Protocol:"HTTP/1.1",
-Response_code: 200,
-Content_size:4
+    ip_address: "::ffff:54.221.200.10",
+    client_id: "client5",
+    user_id: "user5",
+    date_time: "2018-03-03T11:00:00",
+    method: "GET",
+    endpoint: "/v1/data/read/temp",
+    protocol: "HTTP/1.1",
+    response_code: 200,
+    content_size: 4
 }
 )
 ````
