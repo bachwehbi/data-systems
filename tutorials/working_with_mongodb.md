@@ -399,7 +399,7 @@ Adapt the code in order to use the more efficient bulk insert method: `insert_ma
 print(logs.count_documents({}))
 
 # you can add a filter
-print(logs.count_documents({method: "POST"}))
+print(logs.count_documents({"method": "POST"}))
 ```
 
 ## Indexing
